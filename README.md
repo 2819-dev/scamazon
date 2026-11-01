@@ -1,22 +1,21 @@
 # Scamazon
 
-A parody "everything store": Earth's most customer-confused company. Every brand is off-brand
-(Pear pPhone, Samsong Galaxy, Nikey, Abibas, Ray-Bam, Sonny PlayStaytion…), and the membership program is **Crime**.
+A demo e-commerce storefront with fictional brands (Pear, Samsong, Nikey, Abibas, Ray-Bam, Sonny…)
+and a membership program called **Crime**.
 
 Live: https://scamazon-6glw.netlify.app
 
 ## Features
-- Stock product photos with knockoff brand stickers baked in (`img/`)
+- Stock product photos with fictional brand labels (`img/`)
 - Search with live suggestions, departments, brand / price / rating / Crime / deal filters, sorting, pagination
 - Product pages: image views + hover zoom, variants (size, color, storage) with live pricing, clippable coupons,
   frequently-bought-together, related items, reviews (write your own)
 - Cart with quantities, save for later, free-shipping progress; wish list
 - Sign in / create account, saved address, "Deliver to" ZIP
-- Checkout with address validation, delivery speeds, promo codes (`CRIME10`, `PEAR`, `SCAM50`, `FREESTUFF`), pretend payment
+- Checkout with address validation, delivery speeds, promo codes (`WELCOME5`, `CRIME10`, `FREESHIP`, `PEAR`), demo payment
 - Orders with live (accelerated) tracking, cancel, return, buy again
 - Crime membership: join / (try to) cancel, free one-day delivery, Crime Video
 
-Plain HTML/CSS/JS, no build step. All state lives in the visitor's browser (localStorage). Nothing is real:
-no payments, no data collected.
+Plain HTML/CSS/JS, no build step. All state lives in the visitor's browser (localStorage). No payments are processed and no data leaves the browser.
 
-Photos: [Unsplash](https://unsplash.com) (Unsplash License), stickers added.
+Photos: [Unsplash](https://unsplash.com) (Unsplash License), with brand labels added.

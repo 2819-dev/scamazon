@@ -109,7 +109,7 @@
 
   // location modal
   $("#deliverBtn").onclick = () => modal("Choose your location", `
-    <p class="muted">Delivery options and delivery speeds may vary for different locations. (They won't, nothing is real.)</p>
+    <p class="muted">Delivery options and delivery speeds may vary for different locations.</p>
     ${S.user ? "" : `<a class="btn block" href="#/signin" data-close>Sign in to see your addresses</a><div class="or">or enter a US zip code</div>`}
     <form id="zipForm" class="inline-form"><input id="zipIn" inputmode="numeric" pattern="\\d{5}" maxlength="5" placeholder="ZIP code" value="${esc(S.address?.zip || "")}" required><button class="btn ghost">Apply</button></form>`,
     (el) => {
@@ -117,9 +117,8 @@
       $("#zipForm", el).onsubmit = (e) => {
         e.preventDefault();
         const zip = $("#zipIn", el).value;
-        const cities = ["Springfield", "Shelbyville", "Gotham-ish", "Nowhere", "Scamville", "Fakesburg"];
-        S.address = { ...(S.address || { name: S.user?.name || "", line1: "", state: "" }), zip, city: S.address?.city || cities[Number(zip) % cities.length] };
-        save("address"); closeModal(); toast(`📍 Delivering to ${esc(S.address.city)} ${zip}`); route();
+        S.address = { ...(S.address || { name: S.user?.name || "", line1: "", city: "", state: "" }), zip };
+        save("address"); closeModal(); toast(`📍 Delivering to ${zip}`); route();
       };
     });
 
@@ -143,7 +142,7 @@
   C.forEach((c) => sel.insertAdjacentHTML("beforeend", `<option value="${c.id}">${esc(c.name)}</option>`));
   const subnav = $("#subnav");
   C.forEach((c) => subnav.insertAdjacentHTML("beforeend", `<a href="#/s?cat=${c.id}">${esc(c.name)}</a>`));
-  subnav.insertAdjacentHTML("beforeend", `<a href="#/lists">Wish List</a><a href="#/orders">Customer Disservice</a>`);
+  subnav.insertAdjacentHTML("beforeend", `<a href="#/lists">Wish List</a><a href="#/help">Customer Service</a>`);
 
   const input = $("#searchInput"), sug = $("#suggest");
   let sugIdx = -1;
@@ -161,7 +160,7 @@
     if (!q) { sug.hidden = true; return; }
     const brands = [...new Set(P.map((p) => p.brand))].filter((b) => b.toLowerCase().includes(q)).slice(0, 3);
     const prods = P.filter((p) => (p.title + " " + p.brand).toLowerCase().includes(q)).slice(0, 6);
-    if (!brands.length && !prods.length) { sug.innerHTML = `<li class="none">No suggestions. Try "pear" or "crime".</li>`; sug.hidden = false; return; }
+    if (!brands.length && !prods.length) { sug.innerHTML = `<li class="none">No suggestions found</li>`; sug.hidden = false; return; }
     sug.innerHTML = brands.map((b) => `<li role="option" data-q="${esc(b)}">🔍 <b>${esc(b)}</b> <span class="muted">in All Departments</span></li>`).join("") +
       prods.map((p) => `<li role="option" data-id="${p.id}"><img src="${p.img}" alt=""> <span>${esc(p.title.split(" — ")[0])}</span></li>`).join("");
     sug.hidden = false;
@@ -189,7 +188,7 @@
     const cls = small ? "delivery" : "delivery big";
     if (p.crime && S.crime) return `<div class="${cls}"><span class="crime-badge">crime</span> FREE One-Day Delivery <b>${dateStr(daysFrom(1), { weekday: "short", month: "short", day: "numeric" })}</b></div>`;
     if (p.crime) return `<div class="${cls}">FREE delivery <b>${dateStr(daysFrom(6), { weekday: "short", month: "short", day: "numeric" })}</b> on $35 of items<br>Or fastest delivery <b>${dateStr(daysFrom(1), { weekday: "short", month: "short", day: "numeric" })}</b> with <a href="#/crime" class="crime-badge">crime</a></div>`;
-    return `<div class="${cls}">Delivery <b>${dateStr(daysFrom(9), { weekday: "short", month: "short", day: "numeric" })}</b>, maybe. Ships from a guy.</div>`;
+    return `<div class="${cls}">FREE delivery <b>${dateStr(daysFrom(9), { weekday: "short", month: "short", day: "numeric" })}</b> on orders over $35</div>`;
   }
   const couponBadge = (p) => p.coupon ? `<div class="coupon-line"><span class="coupon-tag">Coupon</span> Save $${p.coupon} with coupon</div>` : "";
 
@@ -214,10 +213,10 @@
 
   // ================= VIEWS =================
   const slides = [
-    { cls: "s1", kicker: "Just dropped", h: "Pear pPhone 17 Pro Max", p: "Now with even fewer ports. From $1,199.", id: "pear-pphone-17" },
-    { cls: "s2", kicker: "Crime members save more", h: "Crime pays. Literally.", p: "FREE One-Day delivery, Crime Video & deals that are basically illegal.", link: "#/crime", cta: "Try Crime free", img: "img/rollex.jpg" },
-    { cls: "s3", kicker: "Gaming Week", h: "Up to 30% off consoles", p: "PlayStaytion, Xboxx & Joy-Drift controllers.", link: "#/s?cat=gaming", cta: "Shop gaming", img: "img/sonny-playstaytion.jpg" },
-    { cls: "s4", kicker: "Summer style", h: "Ray-Bam. BAM. Shade.", p: "Classic Wayfarer-ish sunglasses, 54% off.", id: "raybam" },
+    { cls: "s1", kicker: "New arrival", h: "Pear pPhone 17 Pro Max", p: "Titanium design. Pro camera system. From $1,199.", id: "pear-pphone-17" },
+    { cls: "s2", kicker: "Crime members save more", h: "Crime: delivery that can't be beat", p: "FREE One-Day delivery, Crime Video, and member-only deals.", link: "#/crime", cta: "Try Crime free", img: "img/rollex.jpg" },
+    { cls: "s3", kicker: "Gaming Week", h: "Up to 30% off consoles", p: "Save on PlayStaytion, Xboxx and accessories.", link: "#/s?cat=gaming", cta: "Shop gaming", img: "img/sonny-playstaytion.jpg" },
+    { cls: "s4", kicker: "Summer style", h: "Ray-Bam sunglasses", p: "Classic square frames, now 54% off.", id: "raybam" },
   ];
 
   function home() {
@@ -228,7 +227,7 @@
     const dealOfDay = P.filter((p) => p.deal).sort((a, b) => off(b.price, b.list) - off(a.price, a.list))[0];
 
     app.innerHTML = `
-      ${S.crime ? `<div class="member-banner">🦹 Welcome back${S.user ? ", " + esc(S.user.name.split(" ")[0]) : ""}. Your Crime membership is active — everything ships free & fast.</div>` : ""}
+      ${S.crime ? `<div class="member-banner">🦹 Welcome back${S.user ? ", " + esc(S.user.name.split(" ")[0]) : ""}. Your Crime membership is active.</div>` : ""}
       <section class="hero" aria-label="Featured">
         ${slides.map((s, i) => { const p = s.id && byId[s.id]; return `<div class="hero-slide ${s.cls} ${i === 0 ? "active" : ""}">
           <div class="hero-copy"><span class="kicker">${s.kicker}</span><h2>${s.h}</h2><p>${s.p}</p><a class="btn ${s.cls === "s2" ? "crime" : ""}" href="${p ? "#/p/" + p.id : s.link}">${s.cta || "Shop now"}</a></div>
@@ -239,22 +238,22 @@
         <div class="dots">${slides.map((_, i) => `<button aria-label="Slide ${i + 1}" data-dot="${i}" class="${i ? "" : "on"}"></button>`).join("")}</div>
       </section>
       <section class="grid-cards">
-        ${S.user ? `<div class="card"><h3>Hi, ${esc(S.user.name.split(" ")[0])}</h3><p class="muted">Recommendations for you, based on your questionable purchase history.</p><div class="quad">${(hist.length ? hist : P.filter((p) => p.deal)).slice(0, 4).map((p) => `<a href="#/p/${p.id}">${imgTag(p)}<span>${esc(p.brand)}</span></a>`).join("")}</div><a class="see-more" href="#/orders">Your orders</a></div>`
-          : `<div class="card signin-card"><h3>Sign in for the best experience</h3><a class="btn block" href="#/signin">Sign in securely-ish</a><p class="muted">New customer? <a class="lnk" href="#/signin?new=1">Start here.</a></p><div class="quad">${P.filter((p) => p.cat === "devices").slice(0, 4).map((p) => `<a href="#/p/${p.id}">${imgTag(p)}<span>${esc(p.title.split(" ").slice(1, 3).join(" "))}</span></a>`).join("")}</div></div>`}
+        ${S.user ? `<div class="card"><h3>Hi, ${esc(S.user.name.split(" ")[0])}</h3><p class="muted">Recommended for you based on your browsing history.</p><div class="quad">${(hist.length ? hist : P.filter((p) => p.deal)).slice(0, 4).map((p) => `<a href="#/p/${p.id}">${imgTag(p)}<span>${esc(p.brand)}</span></a>`).join("")}</div><a class="see-more" href="#/orders">Your orders</a></div>`
+          : `<div class="card signin-card"><h3>Sign in for the best experience</h3><a class="btn block" href="#/signin">Sign in securely</a><p class="muted">New customer? <a class="lnk" href="#/signin?new=1">Start here.</a></p><div class="quad">${P.filter((p) => p.cat === "devices").slice(0, 4).map((p) => `<a href="#/p/${p.id}">${imgTag(p)}<span>${esc(p.title.split(" ").slice(1, 3).join(" "))}</span></a>`).join("")}</div></div>`}
         ${quad("Shop Pear products", P.filter((p) => p.brand === "Pear"), "#/s?q=pear", "See all Pear")}
         ${single("Deal of the day", dealOfDay, "#/deals", "See all deals", `<div class="dod"><span class="deal-badge">Up to ${off(dealOfDay.price, dealOfDay.list)}% off</span> <span class="deal-text">Deal of the Day</span><div class="tiny">${esc(dealOfDay.title.split(" — ")[0])}</div></div>`)}
         ${quad("Level up your gaming", inCat("gaming"), "#/s?cat=gaming", "Shop gaming")}
-        ${quad("Kicks & fashion-ish", inCat("fashion"), "#/s?cat=fashion", "Shop fashion")}
+        ${quad("Shoes & fashion", inCat("fashion"), "#/s?cat=fashion", "Shop fashion")}
         ${quad("Upgrade your kitchen", inCat("home").filter((p) => /pottery|mixer|espresso|decker/.test(p.id)), "#/s?cat=home", "Shop home & kitchen")}
         ${S.crime ? quad("Your Crime picks", P.filter((p) => p.crime && p.deal).slice(4), "#/s?crime=1", "All Crime deals") :
-          `<div class="card crime-card"><h3>Try Crime free for 30 days</h3><div class="crime-mini"><div class="crime-logo sm"><span class="s">scamazon</span><span class="c">crime</span></div><p>Free One-Day delivery, Crime Video &amp; more.</p></div><a class="btn crime block" href="#/crime">Start your free trial</a></div>`}
+          `<div class="card crime-card"><h3>Try Crime free for 30 days</h3><div class="crime-mini"><div class="crime-logo sm"><span class="s">scamazon</span><span class="c">crime</span></div><p>FREE One-Day delivery, Crime Video &amp; more.</p></div><a class="btn crime block" href="#/crime">Start your free trial</a></div>`}
         ${quad("Snacks & sips", inCat("grocery"), "#/s?cat=grocery", "Shop grocery")}
       </section>
       ${hist.length ? scroller("Your browsing history", hist, null) : ""}
-      ${scroller("Today's suspiciously good deals", P.filter((p) => p.deal).sort((a, b) => off(b.price, b.list) - off(a.price, a.list)), "#/deals")}
+      ${scroller("Today's top deals", P.filter((p) => p.deal).sort((a, b) => off(b.price, b.list) - off(a.price, a.list)), "#/deals")}
       ${scroller("Best sellers in Electronics", P.filter((p) => p.cat === "electronics").sort((a, b) => b.reviews - a.reviews), "#/s?cat=electronics&sort=reviews")}
-      ${scroller("Toys for big kids", inCat("toys"), "#/s?cat=toys")}
-      ${scroller("Scamazon Devices — they're listening", [...inCat("devices"), ...inCat("computers")], "#/s?cat=devices")}
+      ${scroller("Popular in Toys & Games", inCat("toys"), "#/s?cat=toys")}
+      ${scroller("Scamazon Devices & Computers", [...inCat("devices"), ...inCat("computers")], "#/s?cat=devices")}
     `;
 
     // carousel
@@ -304,7 +303,7 @@
 
     const midnight = new Date(); midnight.setHours(24, 0, 0, 0);
     app.innerHTML = `
-      ${mode === "deals" ? `<div class="deals-banner"><h1>Today's Deals</h1><p>All deals end in <b id="countdown">--:--:--</b>. Then they restart. Forever.</p>
+      ${mode === "deals" ? `<div class="deals-banner"><h1>Today's Deals</h1><p>Deals end in <b id="countdown">--:--:--</b></p>
         <div class="chips">${[["", "All Deals"], ...C.map((c) => [c.id, c.name])].map(([id, n]) => `<a class="chip ${cat === id ? "on" : ""}" href="${link({ cat: id })}">${esc(n)}</a>`).join("")}</div></div>` : ""}
       <div class="results">
         <button class="btn ghost filter-toggle" type="button" id="filterToggle">Filters ▾</button>
@@ -332,7 +331,7 @@
             </select></label>
           </div>
           ${shown.length ? `<div class="result-grid">${shown.map(resultCard).join("")}</div>` :
-            `<div class="page flat"><h2>No results${q ? ` for "${esc(params.get("q"))}"` : ""}</h2><p>Try checking your spelling, removing filters, or accept that even we don't sell a knockoff of that. Yet.</p><a class="btn" href="#/s">Browse everything</a></div>`}
+            `<div class="page flat"><h2>No results${q ? ` for "${esc(params.get("q"))}"` : ""}</h2><p>Try checking your spelling, using more general terms, or removing filters.</p><a class="btn" href="#/s">Browse everything</a></div>`}
           ${pages > 1 ? `<nav class="pager">${page > 1 ? `<a href="${link({ page: page - 1 })}">‹ Previous</a>` : `<span class="dim">‹ Previous</span>`}${Array.from({ length: pages }, (_, i) => `<a href="${link({ page: i + 1 })}" class="${i + 1 === page ? "on" : ""}">${i + 1}</a>`).join("")}${page < pages ? `<a href="${link({ page: page + 1 })}">Next ›</a>` : `<span class="dim">Next ›</span>`}</nav>` : ""}
         </div>
       </div>`;
@@ -353,18 +352,18 @@
   }
 
   // ---------- product page ----------
-  const reviewers = ["Karen W.", "Definitely_Real_Person", "Chad", "Grandma Joan", "TotallyNotABot42", "Mike from Ohio", "A Scamazon Customer", "xX_Gamer_Xx", "Linda", "Dr. Reviews PhD", "Brenda K.", "Sir Buys-a-Lot"];
+  const reviewers = ["Karen W.", "Michael T.", "Jordan P.", "Sarah L.", "David R.", "Emily C.", "A Scamazon Customer", "Chris M.", "Linda H.", "Anthony B.", "Brenda K.", "Priya S."];
   const reviewBank = [
-    [5, "Exactly like the real thing", "My friends couldn't tell the difference. I couldn't either. I'm no longer sure there is one."],
-    [5, "Arrived before I ordered it", "Crime delivery is fast. Suspiciously fast. I hadn't even clicked buy yet."],
-    [4, "Pretty good, one star off for the smell", "Works great. Smells faintly of warehouse and ambition."],
-    [1, "Received a brick", "Ordered this, got a brick. To be fair, it's a very nice brick. Updating to 2 stars."],
-    [5, "Changed my life", "I received this product for free in exchange for an honest review. Honestly: five stars."],
-    [3, "It's fine", "It does what it says, and also some things it doesn't say. Mostly fine."],
-    [4, "My cat loves the box", "The product is OK. The box is a 10/10 according to Mr. Whiskers."],
-    [2, "The sticker fell off", "Underneath the sticker was another sticker. Turtles all the way down."],
-    [5, "Bought three", "One for me, one for my mom, one to return for no reason."],
-    [4, "Better than the original-ish", "Does everything the expensive one does, plus a mysterious extra beep."],
+    [5, "Exactly what I was looking for", "Great quality for the price. Arrived quickly and was well packaged. Would definitely buy again."],
+    [5, "Fast delivery, works perfectly", "Arrived a day early with Crime shipping. Setup took just a few minutes and it has worked flawlessly since."],
+    [4, "Very good, minor complaints", "Does everything it advertises. Build quality is solid. Only wish it came in more colors."],
+    [2, "Not for me", "The product itself is fine, but it didn't fit my needs. The return process was easy."],
+    [5, "Excellent value", "Compared several options and this was the best value by far. Highly recommend."],
+    [3, "Decent, but not perfect", "It works as described. A few small design choices I'd change, but overall it's okay for the price."],
+    [4, "Great gift", "Bought this as a gift and they love it. Nice packaging, too."],
+    [5, "Second one I've bought", "Liked the first one so much I bought another for the office. Consistent quality."],
+    [4, "Solid purchase", "Feels premium and performs well. Took off one star because the instructions could be clearer."],
+    [5, "Highly recommend", "Exceeded my expectations. Customer service was also very helpful with a question I had."],
   ];
 
   function product(id, params) {
@@ -407,7 +406,7 @@
             ${p.v ? `<div class="variants"><div><b>${esc(p.v.name)}:</b> <span id="vLabel">${esc(variant)}</span></div><div class="v-opts">${p.v.options.map(([l, d]) => `<button class="v-opt ${l === variant ? "on" : ""}" data-v="${esc(l)}"><b>${esc(l)}</b><span>${money(p.price + d)}</span></button>`).join("")}</div></div>` : ""}
             <hr>
             <h3>About this item</h3>
-            <ul class="bullets">${p.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}<li>Brand sticker hand-applied by our authenticity team (Gary)</li></ul>
+            <ul class="bullets">${p.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>
           </div>
           <div class="buybox">
             <div id="bbPrice"></div>
@@ -418,12 +417,12 @@
             <button class="btn block" id="addBtn">Add to Cart</button>
             <button class="btn orange block" id="buyBtn">Buy Now</button>
             <div class="meta">
-              <span>Ships from</span><span>Scamazon.con</span>
-              <span>Sold by</span><span>${esc(p.brand)} (probably)</span>
-              <span>Returns</span><span>Returnable within 30 seconds</span>
-              <span>Payment</span><span class="lnk">🔒 Secure-ish transaction</span>
+              <span>Ships from</span><span>Scamazon.com</span>
+              <span>Sold by</span><span>${esc(p.brand)}</span>
+              <span>Returns</span><span>Returnable within 30 days of receipt</span>
+              <span>Payment</span><span class="lnk">🔒 Secure transaction</span>
             </div>
-            <label class="gift"><input type="checkbox"> Add a gift receipt for easy returns (lol)</label>
+            <label class="gift"><input type="checkbox"> Add a gift receipt for easy returns</label>
             <hr>
             <button class="btn ghost block" id="listBtn">${S.wish.includes(p.id) ? "♥ In your Wish List" : "Add to List"}</button>
             <button class="btn ghost block" id="shareBtn">Share 🔗</button>
@@ -442,11 +441,11 @@
           <div>
             <h2>Customer reviews</h2>
             <div class="rating-line big">${stars(r.avg)} <b>${r.avg.toFixed(1)} out of 5</b></div>
-            <div class="muted tiny">${r.count.toLocaleString()} global ratings (many from real people)</div>
+            <div class="muted tiny">${r.count.toLocaleString()} global ratings</div>
             ${dist.map((d, i) => `<div class="hist"><span>${5 - i} star</span><div class="bar"><div style="width:${Math.round((d / totalDist) * 100)}%"></div></div><span>${Math.round((d / totalDist) * 100)}%</span></div>`).join("")}
             <hr>
             <h3>Review this product</h3>
-            <p class="tiny">Share your thoughts with other customers (and our marketing team)</p>
+            <p class="tiny">Share your thoughts with other customers</p>
             <button class="btn ghost block" id="writeReview">Write a customer review</button>
           </div>
           <div>
@@ -455,7 +454,7 @@
               <div class="who"><span class="avatar">${esc(rv.name[0])}</span>${esc(rv.name)}${rv.mine ? ' <span class="you">You</span>' : ""}</div>
               <div class="head">${stars(rv.stars)} <b>${esc(rv.title)}</b></div>
               <div class="tiny muted">Reviewed in the United States on ${dateStr(rv.date, { month: "long", day: "numeric", year: "numeric" })}${p.v && !rv.mine ? ` · ${esc(p.v.name)}: ${esc(p.v.options[Math.floor(seeded(rv.title)() * p.v.options.length)][0])}` : ""}</div>
-              <div class="verified">${rv.mine ? "Your review" : "Verified-ish Purchase"}</div>
+              <div class="verified">${rv.mine ? "Your review" : "Verified Purchase"}</div>
               <p>${esc(rv.body)}</p>
               ${rv.mine ? "" : `<div class="helpful"><span>${rv.helpful} people found this helpful</span> <button class="btn ghost sm" data-helpful>Helpful</button> <button class="linkbtn tiny" data-report>Report</button></div>`}
             </div>`).join("")}
@@ -466,7 +465,7 @@
     // dynamic price/variant rendering
     function renderPrice() {
       const up = unitPrice(p, variant), lp = listPrice(p, variant);
-      $("#priceRow").innerHTML = `${lp > up ? `<span class="pct">-${off(up, lp)}%</span> ` : ""}${priceHTML(up, "big")}${lp > up ? `<div class="list-price">List Price: <s>${money(lp)}</s></div>` : ""}<div class="tiny muted">${up > 100 ? `Or ${money(up / 12)}/mo (12 mo) with Scamazon Store Card-ish. Interest: yes.` : "No interest. In anything."}</div>`;
+      $("#priceRow").innerHTML = `${lp > up ? `<span class="pct">-${off(up, lp)}%</span> ` : ""}${priceHTML(up, "big")}${lp > up ? `<div class="list-price">List Price: <s>${money(lp)}</s></div>` : ""}<div class="tiny muted">${up > 100 ? `Or ${money(up / 12)}/mo for 12 months with the Scamazon Store Card` : "Includes free returns"}</div>`;
       $("#bbPrice").innerHTML = priceHTML(up, "big");
     }
     renderPrice();
@@ -501,7 +500,7 @@
     if (fbtBtn) fbtBtn.onclick = () => { fbt.forEach((x) => addToCart(x.id, defaultVariant(x), 1, true)); toast(`<b class="ok">✔ ${fbt.length} items added to Cart</b> <a class="btn sm" href="#/cart">Go to Cart</a>`); };
     $("#writeReview").onclick = () => reviewModal(p);
     $$("[data-helpful]", app).forEach((b) => (b.onclick = () => { b.disabled = true; b.textContent = "Thanks!"; const s = b.previousElementSibling; s.textContent = (parseInt(s.textContent) + 1) + " people found this helpful"; }));
-    $$("[data-report]", app).forEach((b) => (b.onclick = () => { b.replaceWith(Object.assign(document.createElement("span"), { className: "tiny muted", textContent: "Reported. We'll ignore it promptly." })); }));
+    $$("[data-report]", app).forEach((b) => (b.onclick = () => { b.replaceWith(Object.assign(document.createElement("span"), { className: "tiny muted", textContent: "Thank you for your feedback." })); }));
     const sc = $("[data-scroll]", app); if (sc) sc.onclick = (e) => { e.preventDefault(); $("#reviews").scrollIntoView({ behavior: "smooth" }); };
   }
 
@@ -514,7 +513,7 @@
         <label>Overall rating</label>
         <div class="star-pick" id="starPick">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-s="${n}" aria-label="${n} stars">★</button>`).join("")}</div>
         <label for="rvTitle">Add a headline</label><input id="rvTitle" required maxlength="80" placeholder="What's most important to know?">
-        <label for="rvBody">Add a written review</label><textarea id="rvBody" required rows="4" maxlength="800" placeholder="What did you like or dislike? Did the sticker stay on?"></textarea>
+        <label for="rvBody">Add a written review</label><textarea id="rvBody" required rows="4" maxlength="800" placeholder="What did you like or dislike? How did you use this product?"></textarea>
         <p class="tiny muted" id="rvErr"></p>
         <button class="btn">Submit</button>
       </form>`, (el) => {
@@ -524,14 +523,14 @@
         e.preventDefault();
         if (!rating) { $("#rvErr", el).textContent = "Please select a star rating."; return; }
         (S.reviews[p.id] = S.reviews[p.id] || []).unshift({ name: S.user.name, stars: rating, title: $("#rvTitle", el).value.trim(), body: $("#rvBody", el).value.trim(), date: Date.now() });
-        save("reviews"); closeModal(); toast("<b class='ok'>✔ Review submitted.</b> Thanks for your honest(ish) opinion."); route();
+        save("reviews"); closeModal(); toast("<b class='ok'>✔ Review submitted.</b> Thank you for your feedback."); route();
       };
     });
   }
 
   function copyLink(hash) {
     const url = location.origin + location.pathname + hash;
-    (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast("🔗 Link copied. Spread the scam."), () => modal("Share", `<input class="share-in" value="${esc(url)}" readonly onclick="this.select()">`));
+    (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast("🔗 Link copied to clipboard"), () => modal("Share", `<input class="share-in" value="${esc(url)}" readonly onclick="this.select()">`));
   }
 
   // ---------- cart ----------
@@ -561,18 +560,18 @@
       <div class="cart-wrap">
         <div>
           <div class="cart-list">
-            ${lines.length ? `<h1>Shopping Cart</h1><div class="cart-sub-head"><button class="linkbtn" id="clearCart">Deselect all items (just kidding, delete them)</button><span class="muted">Price</span></div>
+            ${lines.length ? `<h1>Shopping Cart</h1><div class="cart-sub-head"><button class="linkbtn" id="clearCart">Delete all items</button><span class="muted">Price</span></div>
               ${lines.map((l) => lineHTML(l, false)).join("")}
               <div class="subtotal">Subtotal (${count} item${count === 1 ? "" : "s"}): <b>${money(sub)}</b></div>`
-              : `<div class="empty-cart"><img src="img/stanly-quencher.jpg" alt=""><div><h1>Your Scamazon Cart is empty</h1><p>Your wallet thanks you. Your wallet is wrong.</p><a class="btn" href="#/deals">Shop today's deals</a> ${S.user ? "" : `<a class="btn ghost" href="#/signin">Sign in to your account</a>`}</div></div>`}
+              : `<div class="empty-cart"><img src="img/stanly-quencher.jpg" alt=""><div><h1>Your Scamazon Cart is empty</h1><p>Check your Saved for later items below or continue shopping.</p><a class="btn" href="#/deals">Shop today's deals</a> ${S.user ? "" : `<a class="btn ghost" href="#/signin">Sign in to your account</a>`}</div></div>`}
           </div>
           ${saved.length ? `<div class="cart-list"><h2>Saved for later (${saved.length} item${saved.length === 1 ? "" : "s"})</h2>${saved.map((l) => lineHTML(l, true)).join("")}</div>` : ""}
         </div>
         ${lines.length ? `<div class="summary">
-          ${sub >= 35 || S.crime ? `<div class="free ok">✔ Your order qualifies for FREE Shipping.${S.crime ? " Thanks, criminal." : ""}</div>` : `<div class="free"><div class="ship-bar"><div style="width:${Math.min(100, (sub / 35) * 100)}%"></div></div>Add <b>${money(35 - sub)}</b> of eligible items to your order for FREE Shipping.</div>`}
+          ${sub >= 35 || S.crime ? `<div class="free ok">✔ Your order qualifies for FREE Shipping.${S.crime ? " (Crime member)" : ""}</div>` : `<div class="free"><div class="ship-bar"><div style="width:${Math.min(100, (sub / 35) * 100)}%"></div></div>Add <b>${money(35 - sub)}</b> of eligible items to your order for FREE Shipping.</div>`}
           <div class="big-sub">Subtotal (${count} item${count === 1 ? "" : "s"}): <b>${money(sub)}</b></div>
           ${coupons ? `<div class="ok tiny">Clipped coupons: -${money(coupons)} at checkout</div>` : ""}
-          <label class="tiny"><input type="checkbox"> This order contains a gift (of guilt)</label>
+          <label class="tiny"><input type="checkbox"> This order contains a gift</label>
           <a class="btn block" href="#/checkout">Proceed to checkout</a>
           ${!S.crime ? `<div class="tiny crime-upsell"><span class="crime-badge">crime</span> members get FREE One-Day delivery. <a href="#/crime" class="lnk">Try Crime free</a></div>` : ""}
         </div>` : ""}
@@ -584,10 +583,10 @@
 
   // ---------- checkout ----------
   const PROMOS = {
-    CRIME10: { pct: 10, msg: "10% off — crime pays!" },
-    SCAM50: { flat: 0.5, msg: "50 cents off. We said SCAM50, not 50%." },
-    FREESTUFF: { none: true, msg: "Nice try." },
-    PEAR: { pct: 5, msg: "5% off Pear-adjacent vibes" },
+    CRIME10: { pct: 10, msg: "10% off your order" },
+    WELCOME5: { flat: 5, msg: "$5.00 off your first order" },
+    FREESHIP: { freeship: true, msg: "Free shipping on this order" },
+    PEAR: { pct: 5, msg: "5% off your order" },
   };
   function checkout() {
     const lines = cartLines();
@@ -597,7 +596,7 @@
     const a = S.address || {};
 
     app.innerHTML = `
-      <div class="checkout-head"><a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.con</span>${LOGO_FROWN}</a><h1>Checkout (<a class="lnk" href="#/cart">${cartCount()} items</a>)</h1><span class="lock">🔒</span></div>
+      <div class="checkout-head"><a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.com</span>${LOGO_FROWN}</a><h1>Checkout (<a class="lnk" href="#/cart">${cartCount()} items</a>)</h1><span class="lock">🔒</span></div>
       <div class="checkout">
         <form id="coForm" novalidate>
           <div class="step"><h3><span>1</span> Shipping address</h3>
@@ -610,16 +609,16 @@
             <label class="tiny check"><input type="checkbox" id="saveAddr" checked> Save as my default address</label>
           </div>
           <div class="step"><h3><span>2</span> Payment method</h3>
-            <p class="tiny muted">This is a parody store — no payment info is collected and nothing is charged. Pick your favorite pretend currency.</p>
-            ${[["Monopoly Money", "🎲"], ["An IOU written on a napkin", "📝"], ["ScamCoin (down 98% today)", "🪙"], ["Exposure", "📸"], ["Scamazon Gift Card balance: $0.00", "🎁"]].map(([n, e], i) => `<label class="radio"><input type="radio" name="pay" value="${esc(n)}" ${i ? "" : "checked"} ${i === 4 ? "disabled" : ""}> ${e} ${esc(n)}</label>`).join("")}
-            <div class="promo"><label for="promoIn">Gift card or promo code</label><div class="inline-form"><input id="promoIn" placeholder="Try CRIME10"><button type="button" class="btn ghost" id="promoBtn">Apply</button></div><div class="tiny" id="promoMsg"></div></div>
+            <p class="tiny muted">Demo store: no card details are collected and no payment is processed.</p>
+            ${[["Scamazon Pay (demo)", "💳"], ["Scamazon Gift Card (demo balance)", "🎁"], ["Pay on delivery", "📦"]].map(([n, e], i) => `<label class="radio"><input type="radio" name="pay" value="${esc(n)}" ${i ? "" : "checked"}> ${e} ${esc(n)}</label>`).join("")}
+            <div class="promo"><label for="promoIn">Gift card or promo code</label><div class="inline-form"><input id="promoIn" placeholder="Enter code"><button type="button" class="btn ghost" id="promoBtn">Apply</button></div><div class="tiny" id="promoMsg"></div></div>
           </div>
           <div class="step"><h3><span>3</span> Review items and delivery</h3>
             <div class="ship-opts">
               ${S.crime ? `<label class="radio"><input type="radio" name="ship" value="crime" checked> <span><b class="ok">${dateStr(daysFrom(1))}</b><br><span class="tiny"><span class="crime-badge">crime</span> FREE One-Day Delivery</span></span></label>` : ""}
               <label class="radio"><input type="radio" name="ship" value="standard" ${S.crime ? "" : "checked"}> <span><b class="ok">${dateStr(daysFrom(6))}</b><br><span class="tiny">Standard — FREE over $35, otherwise $5.99</span></span></label>
-              <label class="radio"><input type="radio" name="ship" value="express"> <span><b class="ok">${dateStr(daysFrom(2))}</b><br><span class="tiny">Expedited — $12.99 (we drive a little faster)</span></span></label>
-              <label class="radio"><input type="radio" name="ship" value="slow"> <span><b class="ok">${dateStr(daysFrom(14))}</b><br><span class="tiny">🐌 No-Rush — FREE + a $1 credit you'll never use</span></span></label>
+              <label class="radio"><input type="radio" name="ship" value="express"> <span><b class="ok">${dateStr(daysFrom(2))}</b><br><span class="tiny">Expedited — $12.99</span></span></label>
+              <label class="radio"><input type="radio" name="ship" value="slow"> <span><b class="ok">${dateStr(daysFrom(14))}</b><br><span class="tiny">No-Rush Shipping — FREE, plus a $1 digital credit</span></span></label>
             </div>
             ${lines.map((l) => { const p = byId[l.id]; return `<div class="order-line">${imgTag(p, "xs")}<div><b>${esc(p.title.split(" — ")[0])}</b>${l.variant ? `<div class="tiny">${esc(p.v.name)}: ${esc(l.variant)}</div>` : ""}<div class="tiny">Qty: ${l.qty} · <b class="red">${money(unitPrice(p, l.variant) * l.qty)}</b></div></div></div>`; }).join("")}
           </div>
@@ -629,10 +628,11 @@
 
     function totals() {
       const sub = cartSubtotal(), coupons = couponSavings();
-      const shipCost = ship === "crime" || ship === "slow" ? 0 : ship === "express" ? 12.99 : sub >= 35 ? 0 : 5.99;
+      let shipCost = ship === "crime" || ship === "slow" ? 0 : ship === "express" ? 12.99 : sub >= 35 ? 0 : 5.99;
       let promoOff = 0;
-      if (promo) promoOff = promo.pct ? +((sub - coupons) * promo.pct / 100).toFixed(2) : promo.flat || 0;
-      const fee = 1.99;
+      if (promo && promo.freeship) shipCost = 0;
+      if (promo && !promo.freeship) promoOff = promo.pct ? +((sub - coupons) * promo.pct / 100).toFixed(2) : promo.flat || 0;
+      const fee = 0;
       const taxable = Math.max(0, sub - coupons - promoOff);
       const tax = +(taxable * 0.0825).toFixed(2);
       return { sub, coupons, shipCost, promoOff, fee, tax, total: +(taxable + shipCost + fee + tax).toFixed(2) };
@@ -641,14 +641,13 @@
       const t = totals();
       $("#orderSummary").innerHTML = `
         <button class="btn block" form="coForm" type="submit">Place your order</button>
-        <p class="tiny muted center">By placing your order, you agree to Scamazon's conditions of use, privacy notice, and to never ask questions.</p>
+        <p class="tiny muted center">By placing your order, you agree to Scamazon's conditions of use and privacy notice.</p>
         <h3>Order Summary</h3>
         <div class="sum-grid">
           <span>Items (${cartCount()}):</span><span>${money(t.sub)}</span>
           <span>Shipping &amp; handling:</span><span>${money(t.shipCost)}</span>
           ${t.coupons ? `<span>Coupons:</span><span class="ok">-${money(t.coupons)}</span>` : ""}
           ${t.promoOff ? `<span>Promo:</span><span class="ok">-${money(t.promoOff)}</span>` : ""}
-          <span>Convenience fee (for your convenience):</span><span>${money(t.fee)}</span>
           <span>Estimated tax:</span><span>${money(t.tax)}</span>
         </div>
         <div class="order-total"><span>Order total:</span><span>${money(t.total)}</span></div>`;
@@ -684,8 +683,8 @@
       lines.forEach((l) => delete S.clipped[l.id]);
       S.cart = [];
       save("orders", "cart", "clipped");
-      app.innerHTML = `<div class="page center thanks"><div class="check">✔</div><h1 class="ok">Order placed, thanks!</h1><p>Confirmation will be sent to <b>${esc(S.user.email)}</b> (in spirit).</p>
-        <p><b>Arriving ${dateStr(order.eta)}</b> to ${esc(addr.name)}, ${esc(addr.city)}, ${esc(addr.state)} — give or take a fiscal quarter.</p>
+      app.innerHTML = `<div class="page center thanks"><div class="check">✔</div><h1 class="ok">Order placed, thanks!</h1><p>A confirmation has been sent to <b>${esc(S.user.email)}</b>.</p>
+        <p><b>Arriving ${dateStr(order.eta)}</b> to ${esc(addr.name)}, ${esc(addr.city)}, ${esc(addr.state)}.</p>
         <p class="tiny muted">Order #${order.id} · Paid with ${esc(order.pay)} · ${money(order.total)}</p>
         <div class="thanks-imgs">${order.items.map((it) => imgTag(byId[it.id], "xs")).join("")}</div>
         <a class="btn" href="#/track/${order.id}">Track package</a> <a class="btn ghost" href="#/orders">Review your orders</a> <a class="btn ghost" href="#/">Continue shopping</a></div>`;
@@ -701,7 +700,7 @@
     const mins = (Date.now() - o.date) / 60000;
     return mins < 2 ? 0 : mins < 5 ? 1 : mins < 9 ? 2 : 3;
   }
-  const stageText = (o) => { const s = stageOf(o); return s < 0 ? "Cancelled" : s === 3 ? `Delivered ${dateStr(o.date + 9 * 60000, { month: "short", day: "numeric" })} — left somewhere, probably` : s === 2 ? "Out for delivery (allegedly)" : s === 1 ? `Shipped — arriving ${dateStr(o.eta)}` : `Arriving ${dateStr(o.eta)}`; };
+  const stageText = (o) => { const s = stageOf(o); return s < 0 ? "Cancelled" : s === 3 ? `Delivered ${dateStr(o.date + 9 * 60000, { month: "short", day: "numeric" })} ` : s === 2 ? "Out for delivery" : s === 1 ? `Shipped — arriving ${dateStr(o.eta)}` : `Arriving ${dateStr(o.eta)}`; };
 
   function ordersView(params) {
     if (!S.user) { location.hash = "#/signin?next=" + encodeURIComponent("#/orders"); return; }
@@ -709,14 +708,14 @@
     const list = S.orders.filter((o) => filter === "all" || (filter === "open" && stageOf(o) >= 0 && stageOf(o) < 3) || (filter === "cancelled" && o.cancelled));
     app.innerHTML = `<div class="page"><h1>Your Orders</h1>
       <div class="tabs">${[["all", "Orders"], ["open", "Not Yet Delivered"], ["cancelled", "Cancelled Orders"]].map(([k, n]) => `<a href="#/orders?f=${k}" class="${filter === k ? "on" : ""}">${n}</a>`).join("")}</div>
-      ${!list.length ? `<p>${filter === "all" ? "You haven't placed any orders yet. Suspicious." : "Nothing here."} <a class="lnk" href="#/">Start shopping</a></p>` :
+      ${!list.length ? `<p>${filter === "all" ? "You haven't placed any orders yet." : "No orders in this view."} <a class="lnk" href="#/">Start shopping</a></p>` :
       list.map((o) => { const st = stageOf(o); return `<div class="order">
         <div class="order-head"><div>ORDER PLACED<b>${dateStr(o.date, { month: "long", day: "numeric", year: "numeric" })}</b></div><div>TOTAL<b>${money(o.total)}</b></div><div>SHIP TO<b>${esc(o.addr?.name || "")}</b></div><div>PAID WITH<b>${esc(o.pay)}</b></div><div class="right">ORDER # ${esc(o.id)}<a class="lnk" href="#/track/${o.id}">View order details</a></div></div>
         <div class="order-body">
           <div class="order-main">
             <div class="status ${st < 0 ? "red" : ""}">${stageText(o)}</div>
             ${o.items.map((it, i) => { const p = byId[it.id]; if (!p) return ""; return `<div class="order-line">${imgTag(p, "sm")}<div><a class="lnk" href="#/p/${p.id}">${esc(p.title)}</a>${it.variant ? `<div class="tiny">${esc(p.v.name)}: ${esc(it.variant)}</div>` : ""}<div class="tiny">Qty: ${it.qty} · ${money(it.price)}</div>
-              ${it.returned ? `<div class="tiny red">Return started — refund will be issued in Monopoly Money</div>` : ""}
+              ${it.returned ? `<div class="tiny red">Return started — refund will be issued once the item is received</div>` : ""}
               <div class="btn-row"><button class="btn sm" data-add="${p.id}" data-variant="${esc(it.variant || "")}">🔁 Buy it again</button> <a class="btn ghost sm" href="#/p/${p.id}">View your item</a></div></div></div>`; }).join("")}
           </div>
           <div class="order-actions">
@@ -734,11 +733,11 @@
     if (!o) return notFound();
     const st = stageOf(o);
     const log = [
-      [o.date, "Order placed", "Your order was received and immediately forgotten about."],
-      [o.date + 2 * 60000, "Shipped", "Package left the Scamazon warehouse (a garage in Ohio)."],
-      [o.date + 3.5 * 60000, "In transit", "Package is on a truck. The truck is vibing."],
-      [o.date + 5 * 60000, "Out for delivery", "Driver is 3 stops away. Or 300. Hard to say."],
-      [o.date + 9 * 60000, "Delivered", `Left at front door of ${esc(o.addr?.line1 || "your house")}. Or the neighbor's. Photo is blurry.`],
+      [o.date, "Order placed", "Your order has been received and is being prepared."],
+      [o.date + 2 * 60000, "Shipped", "Your package has left the Scamazon fulfillment center."],
+      [o.date + 3.5 * 60000, "In transit", "Your package is in transit to the local delivery station."],
+      [o.date + 5 * 60000, "Out for delivery", "Your package is out for delivery today."],
+      [o.date + 9 * 60000, "Delivered", `Delivered to front door at ${esc(o.addr?.line1 || "your address")}.`],
     ].filter(([t]) => t <= Date.now() && !o.cancelled);
     app.innerHTML = `<div class="page track">
       <a class="lnk tiny" href="#/orders">‹ Your Orders</a>
@@ -746,8 +745,8 @@
       <p class="muted">Order #${esc(o.id)} · ${o.items.reduce((a, i) => a + i.qty, 0)} item(s) · ${money(o.total)}</p>
       ${st >= 0 ? `<div class="progress"><div class="progress-fill" style="width:${(st / 3) * 100}%"></div>${STAGES.map((s, i) => `<div class="pstep ${i <= st ? "done" : ""}" style="left:${(i / 3) * 100}%"><span></span><b>${s}</b></div>`).join("")}</div>` : ""}
       <div class="track-grid">
-        <div><h3>Shipping updates</h3>${log.length ? log.reverse().map(([t, h, d]) => `<div class="log"><b>${h}</b><div class="tiny muted">${new Date(t).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" })}</div><p>${d}</p></div>`).join("") : "<p>No updates. The package is shy.</p>"}
-          ${st >= 0 && st < 3 ? `<p class="tiny muted">Tip: this page updates as your package moves (it only takes a few minutes in Scamazon time).</p>` : ""}</div>
+        <div><h3>Shipping updates</h3>${log.length ? log.reverse().map(([t, h, d]) => `<div class="log"><b>${h}</b><div class="tiny muted">${new Date(t).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" })}</div><p>${d}</p></div>`).join("") : "<p>No shipping updates yet.</p>"}
+          ${st >= 0 && st < 3 ? `<p class="tiny muted">This page updates automatically as your package moves. (Demo orders progress every few minutes.)</p>` : ""}</div>
         <div><h3>Shipping to</h3><p>${esc(o.addr?.name)}<br>${esc(o.addr?.line1)}<br>${esc(o.addr?.city)}, ${esc(o.addr?.state)} ${esc(o.addr?.zip)}</p>
           <h3>Items</h3>${o.items.map((it) => byId[it.id] ? `<div class="order-line">${imgTag(byId[it.id], "xs")}<a class="lnk tiny" href="#/p/${it.id}">${esc(byId[it.id].title.split(" — ")[0])}</a></div>` : "").join("")}
           ${st >= 0 && st < 1 ? `<button class="btn ghost" data-cancel="${o.id}">Cancel order</button>` : ""}</div>
@@ -758,7 +757,7 @@
   // ---------- lists ----------
   function listsView() {
     const items = S.wish.map((id) => byId[id]).filter(Boolean);
-    app.innerHTML = `<div class="page"><h1>Your Wish List</h1><p class="muted">${items.length} item${items.length === 1 ? "" : "s"} · Private · Things you'll buy "eventually"</p>
+    app.innerHTML = `<div class="page"><h1>Your Wish List</h1><p class="muted">${items.length} item${items.length === 1 ? "" : "s"} · Private</p>
       ${items.length ? items.map((p) => `<div class="wish-item">
         <a href="#/p/${p.id}">${imgTag(p, "sm")}</a>
         <div><a class="t" href="#/p/${p.id}">${esc(p.title)}</a>${ratingLine(p)}<div>${priceHTML(p.price, "sm")} ${p.list > p.price ? `<span class="deal-text">Price dropped ${off(p.price, p.list)}%</span>` : ""}</div></div>
@@ -775,16 +774,16 @@
     const next = params.get("next") || "#/";
     if (S.user) { location.hash = next; return; }
     app.innerHTML = `<div class="auth">
-      <a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.con</span>${LOGO_FROWN}</a>
+      <a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.com</span>${LOGO_FROWN}</a>
       <form class="auth-card" id="authForm">
         <h1>${isNew ? "Create account" : "Sign in"}</h1>
         ${isNew ? `<label for="an">Your name</label><input id="an" required autocomplete="name" placeholder="First and last name">` : ""}
         <label for="ae">Email</label><input id="ae" type="email" required autocomplete="email">
         <label for="ap">Password</label><input id="ap" type="password" required minlength="${isNew ? 6 : 1}" autocomplete="${isNew ? "new-password" : "current-password"}" placeholder="${isNew ? "At least 6 characters" : ""}">
-        <p class="tiny muted">Demo only: nothing leaves your browser and the password isn't stored. Any email & password works.</p>
+        <p class="tiny muted">Demo store: your account is stored only in this browser and your password is never saved.</p>
         <p class="tiny red" id="authErr"></p>
         <button class="btn block">${isNew ? "Create your Scamazon account" : "Continue"}</button>
-        <p class="tiny">By continuing, you agree to Scamazon's Conditions of Use and Privacy-ish Notice.</p>
+        <p class="tiny">By continuing, you agree to Scamazon's Conditions of Use and Privacy Notice.</p>
       </form>
       ${isNew ? `<p class="tiny">Already have an account? <a class="lnk" href="#/signin?next=${encodeURIComponent(next)}">Sign in ›</a></p>` : `<div class="or">New to Scamazon?</div><a class="btn ghost auth-new" href="#/signin?new=1&next=${encodeURIComponent(next)}">Create your Scamazon account</a>`}
     </div>`;
@@ -808,11 +807,11 @@
     app.innerHTML = `<div class="page"><h1>Your Account</h1><p class="muted">Signed in as <b>${esc(S.user.name)}</b> (${esc(S.user.email)})</p>
       <div class="acct-grid">
         <a class="acct" href="#/orders"><img src="img/bryo-railway.jpg" alt=""><div><h3>Your Orders</h3><p>Track, cancel, return, or buy things again. ${S.orders.length} order(s).</p></div></a>
-        <a class="acct" href="#/crime"><img src="img/rollex.jpg" alt=""><div><h3>Crime</h3><p>${S.crime ? "Member since recently. View benefits." : "Not a member. Turn to a life of Crime."}</p></div></a>
+        <a class="acct" href="#/crime"><img src="img/rollex.jpg" alt=""><div><h3>Crime</h3><p>${S.crime ? "Active member. View your benefits." : "Try Crime free for 30 days."}</p></div></a>
         <a class="acct" href="#/lists"><img src="img/stanly-quencher.jpg" alt=""><div><h3>Your Lists</h3><p>${S.wish.length} item(s) on your Wish List.</p></div></a>
         <button class="acct" id="addrBtn"><img src="img/ding-lock.jpg" alt=""><div><h3>Your Addresses</h3><p>${a && a.line1 ? `${esc(a.line1)}, ${esc(a.city)} ${esc(a.zip)}` : "Add a shipping address"}</p></div></button>
-        <div class="acct"><img src="img/the-ordinaire.jpg" alt=""><div><h3>Login &amp; security</h3><p>Your password is "password". We checked. (Not really — we don't store it.)</p></div></div>
-        <a class="acct" href="#/cart"><img src="img/echo-echo.jpg" alt=""><div><h3>Your Cart</h3><p>${cartCount()} item(s) waiting patiently.</p></div></a>
+        <div class="acct"><img src="img/the-ordinaire.jpg" alt=""><div><h3>Login &amp; security</h3><p>Edit your name, email and password.</p></div></div>
+        <a class="acct" href="#/cart"><img src="img/echo-echo.jpg" alt=""><div><h3>Your Cart</h3><p>${cartCount()} item(s) in your cart.</p></div></a>
       </div>
       <div class="btn-row"><button class="btn ghost" data-signout>Sign out</button> <button class="btn ghost" id="resetBtn">Delete all my data</button></div></div>`;
     $("#addrBtn").onclick = () => addressModal();
@@ -820,7 +819,7 @@
       if (!confirm("Delete your cart, orders, lists, reviews and account from this browser?")) return;
       Object.keys(localStorage).filter((k) => k.startsWith("scam2_")).forEach((k) => localStorage.removeItem(k));
       Object.assign(S, { cart: [], saved: [], wish: [], user: null, crime: false, orders: [], address: null, history: [], reviews: {}, clipped: {} });
-      refreshHeader(); toast("🧹 Fresh start. Evidence destroyed."); location.hash = "#/";
+      refreshHeader(); toast("Your data has been deleted from this browser."); location.hash = "#/";
     };
   }
   function addressModal() {
@@ -841,51 +840,60 @@
 
   // ---------- Crime ----------
   function crimeView() {
-    const shows = [["The Heist Next Door", "#3a1c71,#d76d77"], ["Law & Disorder", "#0f2027,#2c5364"], ["Getaway Bakers", "#f7971e,#ffd200"], ["Breaking Bread", "#134e5e,#71b280"], ["The Usual Suspects-ish", "#232526,#414345"], ["Real Housewives of Alcatraz", "#c94b4b,#4b134f"]];
+    const shows = [["The Heist Next Door", "#3a1c71,#d76d77"], ["Harbor Lights", "#0f2027,#2c5364"], ["The Long Con", "#f7971e,#e44d26"], ["Northbound", "#134e5e,#71b280"], ["Midnight Ledger", "#232526,#414345"], ["Getaway", "#c94b4b,#4b134f"]];
     app.innerHTML = `
       <section class="crime-hero">
         <div class="crime-logo"><span class="s">scamazon</span><span class="c">crime</span></div>
-        <p>${S.crime ? `You're a Crime member${S.user ? ", " + esc(S.user.name.split(" ")[0]) : ""}. You've been doing Crime for a while now. We're proud of you.` : "Free One-Day delivery. Crime Video. Crime Music. Deals so good they should be illegal. Because Crime pays."}</p>
+        <p>${S.crime ? `You're a Crime member${S.user ? ", " + esc(S.user.name.split(" ")[0]) : ""}. Enjoy FREE One-Day delivery and all your member benefits.` : "FREE One-Day delivery, Crime Video, Crime Music and exclusive member deals — all in one membership."}</p>
         ${S.crime ? `<button class="btn ghost" id="cancelCrime">Cancel membership</button>` : `<button class="btn crime xl" id="joinCrime">Start your 30-day free trial</button>`}
-        <div class="fine">After your free trial, Crime is $14.99/month. Cancel anytime*. *Anytime means "eventually, after several 'Are you sure?' screens."</div>
+        <div class="fine">After your free trial, Crime is $14.99/month. Cancel anytime.</div>
       </section>
       <section class="crime-perks">
-        ${[["🚚", "FREE Crime Delivery", "Getaway-car speed: One-Day delivery on millions of items. Packages arrive before you remember ordering them."], ["🎬", "Crime Video", "Thousands of heist movies, true-crime docuseries, and that one show everyone says you have to watch."], ["🎵", "Crime Music", "100 million songs, ad-free. Mostly 'Smooth Operator' on loop."], ["💰", "Crime Day Deals", "Two days a year when everything is 'on sale' from a price we raised the week before."], ["📚", "Crime Reading", "Rotating catalog of e-books, mostly mysteries. Whodunit? You did. You bought it."], ["📸", "Crime Photos", "Unlimited photo storage. Perfect for evidence. Of your vacation. Evidence of your vacation."]].map(([e, h, t]) => `<div class="perk"><div class="e">${e}</div><h3>${h}</h3><p>${t}</p></div>`).join("")}
+        ${[["🚚", "FREE Fast Delivery", "FREE One-Day delivery on millions of eligible items, with no minimum order."], ["🎬", "Crime Video", "Stream award-winning original series, movies and live sports."], ["🎵", "Crime Music", "Listen to 100 million songs ad-free, on any device."], ["💰", "Member Deals", "Early access to Lightning Deals and exclusive member pricing."], ["📚", "Crime Reading", "A rotating catalog of e-books, magazines and comics."], ["📸", "Crime Photos", "Unlimited full-resolution photo storage."]].map(([e, h, t]) => `<div class="perk"><div class="e">${e}</div><h3>${h}</h3><p>${t}</p></div>`).join("")}
       </section>
       <section class="row dark"><h3>Now streaming on Crime Video</h3><div class="scroller">${shows.map(([n, g]) => `<button class="poster" style="background:linear-gradient(135deg,${g})" data-show="${esc(n)}"><span>${esc(n)}</span><i>▶</i></button>`).join("")}</div></section>
       <section class="plans">
-        ${[["Monthly", "$14.99", "/mo", "Petty Crime. Commit month to month."], ["Annual", "$139", "/yr", "Organized Crime. Save $40 a year.", true], ["Student", "$7.49", "/mo", "Juvenile Crime. Requires a .edu email."]].map(([n, pr, per, d, pop]) => `<div class="plan ${pop ? "pop" : ""}"><h3>${n} ${pop ? '<span class="deal-badge">Best value</span>' : ""}</h3><div class="p">${pr}<span>${per}</span></div><p>${d}</p>${S.crime ? "" : `<button class="btn ${pop ? "crime" : "ghost"} block" data-join>Choose ${n}</button>`}</div>`).join("")}
+        ${[["Monthly", "$14.99", "/mo", "Flexible month-to-month billing."], ["Annual", "$139", "/yr", "Save $40 compared to monthly.", true], ["Student", "$7.49", "/mo", "For eligible college students."]].map(([n, pr, per, d, pop]) => `<div class="plan ${pop ? "pop" : ""}"><h3>${n} ${pop ? '<span class="deal-badge">Best value</span>' : ""}</h3><div class="p">${pr}<span>${per}</span></div><p>${d}</p>${S.crime ? "" : `<button class="btn ${pop ? "crime" : "ghost"} block" data-join>Choose ${n}</button>`}</div>`).join("")}
       </section>`;
     const join = () => {
       if (!S.user) { toast("Sign in to start your Crime trial"); location.hash = "#/signin?next=" + encodeURIComponent("#/crime"); return; }
-      S.crime = true; save("crime"); toast("🦹 Welcome to Crime! Your (pretend) free trial has started."); crimeView(); window.scrollTo(0, 0);
+      S.crime = true; save("crime"); toast("Welcome to Crime! Your 30-day free trial has started."); crimeView(); window.scrollTo(0, 0);
     };
     const j = $("#joinCrime"); if (j) j.onclick = join;
     $$("[data-join]", app).forEach((b) => (b.onclick = join));
-    $$("[data-show]", app).forEach((b) => (b.onclick = () => S.crime ? modal(b.dataset.show, `<div class="player"><div class="spinner"></div><p>Buffering… Buffering… This episode is unavailable in your region (Earth).</p></div>`) : (toast("Join Crime to watch"), window.scrollTo({ top: 0, behavior: "smooth" }))));
+    $$("[data-show]", app).forEach((b) => (b.onclick = () => S.crime ? modal(b.dataset.show, `<div class="player"><div class="spinner"></div><p>Crime Video streaming is not available in this demo.</p></div>`) : (toast("Join Crime to start watching"), window.scrollTo({ top: 0, behavior: "smooth" }))));
     const c = $("#cancelCrime");
     if (c) {
-      const msgs = ["Are you sure?", "Are you SURE sure?", "But think of the free shipping…", "We'll give you a coupon! (we won't)", "Last chance! (not really)"];
-      let clicks = 0;
       c.onclick = () => {
-        if (clicks < msgs.length) { c.textContent = msgs[clicks++] + " — click again to cancel"; return; }
-        S.crime = false; save("crime"); toast("😢 Crime membership cancelled. You've gone straight."); crimeView();
+        if (!confirm("Cancel your Crime membership? You'll lose FREE One-Day delivery and member benefits.")) return;
+        S.crime = false; save("crime"); toast("Your Crime membership has been cancelled."); crimeView();
       };
     }
   }
 
   function about() {
     app.innerHTML = `<div class="page narrow"><h1>About Scamazon</h1>
-      <p>Scamazon.con is a parody online store. Every brand here is lovingly off-brand — Pear, Samsong, Nikey, Abibas, Ray-Bam, Sonny and friends are fictional.</p>
-      <p>Nothing here is for sale. No payment information is collected, no orders are real, and Crime membership is entirely pretend. Your account, cart, orders and reviews live only in your own browser — delete them anytime from Your Account.</p>
-      <p>Product photos come from <a class="lnk" href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a> photographers (Unsplash License), with knockoff stickers slapped on by our authenticity team (Gary).</p>
-      <p>Promo codes that "work" at checkout: <code>CRIME10</code>, <code>PEAR</code>, <code>SCAM50</code>. Try <code>FREESTUFF</code> too.</p>
-      <p>Our mission: to be Earth's most customer-confused company.</p>
-      <a class="btn" href="#/">Back to shopping</a></div>`;
+      <p>Scamazon is a demo e-commerce storefront. All brand names on this site — including Pear, Samsong, Nikey, Abibas, Ray-Bam and Sonny — are fictional.</p>
+      <p>No products are for sale, no payment information is collected and no orders are fulfilled. Your account, cart, orders and reviews are stored only in your browser, and you can delete them at any time from Your Account.</p>
+      <p>Product photography is provided by <a class="lnk" href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a> photographers under the Unsplash License.</p>
+      <a class="btn" href="#/">Continue shopping</a></div>`;
+  }
+
+  function help() {
+    const faqs = [
+      ["Where is my order?", "Go to <a class='lnk' href='#/orders'>Your Orders</a> and select Track package to see delivery updates."],
+      ["How do I return an item?", "Delivered items can be returned within 30 days. Open <a class='lnk' href='#/orders'>Your Orders</a> and choose Return or replace items."],
+      ["How do I cancel an order?", "Orders can be cancelled before they ship from <a class='lnk' href='#/orders'>Your Orders</a>."],
+      ["What is Crime?", "Crime is our membership program with FREE One-Day delivery, Crime Video and member deals. <a class='lnk' href='#/crime'>Learn more</a>."],
+      ["Do you have promo codes?", "Current offers: <code>WELCOME5</code> ($5 off), <code>CRIME10</code> (10% off) and <code>FREESHIP</code> (free shipping)."],
+      ["How do I update my address?", "Go to <a class='lnk' href='#/account'>Your Account</a> and select Your Addresses."],
+    ];
+    app.innerHTML = `<div class="page narrow"><h1>Customer Service</h1><p class="muted">Find answers to common questions.</p>
+      ${faqs.map(([q, a]) => `<details class="faq"><summary>${q}</summary><p>${a}</p></details>`).join("")}</div>`;
   }
 
   function notFound() {
-    app.innerHTML = `<div class="page center"><img class="nf" src="img/participation-trophy.jpg" alt=""><h1>Sorry, we couldn't find that page</h1><p>But you tried, and that's what counts. Here's a participation trophy.</p><a class="btn" href="#/">Go to Scamazon home</a></div>`;
+    app.innerHTML = `<div class="page center"><img class="nf" src="img/participation-trophy.jpg" alt=""><h1>Sorry, we couldn't find that page</h1><p>Try searching or go to Scamazon's home page.</p><a class="btn" href="#/">Go to Scamazon home</a></div>`;
   }
 
   // ================= GLOBAL ACTIONS =================
@@ -898,20 +906,20 @@
     if (d.wish) { e.preventDefault(); toggleWish(d.wish); if (location.hash.startsWith("#/lists")) listsView(); else t.classList.toggle("on", S.wish.includes(d.wish)); return; }
     if (d.share) return copyLink("#/p/" + d.share);
     if (d.loc) return $("#deliverBtn").click();
-    if (d.signout !== undefined) { e.preventDefault(); S.user = null; S.crime = false; save("user", "crime"); toast("Signed out. Come back soon (you will)."); location.hash = "#/"; route(); return; }
+    if (d.signout !== undefined) { e.preventDefault(); S.user = null; S.crime = false; save("user", "crime"); toast("You have been signed out."); location.hash = "#/"; route(); return; }
     if (d.review) { e.preventDefault(); location.hash = "#/p/" + d.review; setTimeout(() => reviewModal(byId[d.review]), 50); return; }
     if (d.cancel) {
       const o = S.orders.find((x) => x.id === d.cancel);
-      if (o && confirm("Cancel this order? Your Monopoly Money will be refunded.")) { o.cancelled = true; save("orders"); toast("Order cancelled. The garage in Ohio is devastated."); route(); }
+      if (o && confirm("Cancel this order?")) { o.cancelled = true; save("orders"); toast("Your order has been cancelled."); route(); }
       return;
     }
     if (d.return) {
       const o = S.orders.find((x) => x.id === d.return);
-      modal("Return items", `<form id="retForm" class="stack"><p class="tiny muted">Select items to return. Refunds issued in the original pretend currency.</p>
+      modal("Return items", `<form id="retForm" class="stack"><p class="tiny muted">Select items to return. Refunds are issued to the original payment method.</p>
         ${o.items.map((it, i) => it.returned ? "" : `<label class="radio"><input type="checkbox" name="r" value="${i}" checked> ${esc(byId[it.id]?.title.split(" — ")[0] || it.id)}</label>`).join("")}
-        <label for="why">Reason</label><select id="why"><option>Sticker fell off</option><option>Not as described (it was described accurately)</option><option>Bought by mistake (Alexya did it)</option><option>Found it cheaper on Scamazon</option></select>
+        <label for="why">Reason</label><select id="why"><option>No longer needed</option><option>Item defective or doesn't work</option><option>Not as described</option><option>Bought by mistake</option><option>Better price available</option></select>
         <button class="btn">Submit return</button></form>`, (el) => {
-        $("#retForm", el).onsubmit = (ev) => { ev.preventDefault(); $$("input[name=r]:checked", el).forEach((cb) => (o.items[+cb.value].returned = true)); save("orders"); closeModal(); toast("📦 Return started. Drop it off at any Scamazon Locker (there are none)."); route(); };
+        $("#retForm", el).onsubmit = (ev) => { ev.preventDefault(); $$("input[name=r]:checked", el).forEach((cb) => (o.items[+cb.value].returned = true)); save("orders"); closeModal(); toast("📦 Return started. We've emailed you a prepaid return label."); route(); };
       });
       return;
     }
@@ -921,7 +929,7 @@
     if (d.inc) { const l = findLine(S.cart, k); if (l) l.qty = Math.min(30, l.qty + 1); }
     if (d.dec) { const l = findLine(S.cart, k); if (l && --l.qty <= 0) S.cart = S.cart.filter((x) => x !== l); }
     if (d.del) { if (d.saved) S.saved = S.saved.filter((x) => lineKey(x) !== k); else S.cart = S.cart.filter((x) => lineKey(x) !== k); }
-    if (d.later) { const l = findLine(S.cart, k); if (l) { S.cart = S.cart.filter((x) => x !== l); if (!findLine(S.saved, k)) S.saved.unshift({ ...l, qty: 1 }); toast("💾 Saved for later. Later never comes."); } }
+    if (d.later) { const l = findLine(S.cart, k); if (l) { S.cart = S.cart.filter((x) => x !== l); if (!findLine(S.saved, k)) S.saved.unshift({ ...l, qty: 1 }); toast("💾 Moved to Saved for later"); } }
     if (d.move) { const l = findLine(S.saved, k); if (l) { S.saved = S.saved.filter((x) => x !== l); addToCart(l.id, l.variant, 1, true); } }
     save("cart", "saved"); cartView();
   });
@@ -951,10 +959,11 @@
       case "account": account(); break;
       case "crime": crimeView(); break;
       case "about": about(); break;
+      case "help": help(); break;
       default: notFound();
     }
-    const titles = { s: "Search", deals: "Today's Deals", cart: "Shopping Cart", checkout: "Checkout", orders: "Your Orders", track: "Track Package", lists: "Your Wish List", signin: "Sign-In", account: "Your Account", crime: "Crime", about: "About" };
-    document.title = parts[0] === "p" && byId[parts[1]] ? `Scamazon.con: ${byId[parts[1]].title}` : parts[0] ? `Scamazon.con: ${titles[parts[0]] || "Page Not Found"}` : "Scamazon.con — Spend less*. Regret more.";
+    const titles = { s: "Search", deals: "Today's Deals", cart: "Shopping Cart", checkout: "Checkout", orders: "Your Orders", track: "Track Package", lists: "Your Wish List", signin: "Sign-In", account: "Your Account", crime: "Crime", about: "About", help: "Customer Service" };
+    document.title = parts[0] === "p" && byId[parts[1]] ? `Scamazon.com: ${byId[parts[1]].title}` : parts[0] ? `Scamazon.com: ${titles[parts[0]] || "Page Not Found"}` : "Scamazon.com: Online Shopping for Electronics, Fashion, Home & More";
     window.scrollTo(0, 0);
   }
 
