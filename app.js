@@ -5,6 +5,7 @@
   const C = window.CATEGORIES;
   const byId = Object.fromEntries(P.map((p) => [p.id, p]));
   const app = document.getElementById("app");
+  const LOGO_FROWN = `<svg class="logo-frown" viewBox="0 0 120 32" aria-hidden="true"><path d="M6 27 Q54 -7 104 27" fill="none" stroke="#f90" stroke-width="4.5" stroke-linecap="round"/><path d="M91.5 27.5 L104 27 L99.5 15" fill="none" stroke="#f90" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 17 C27 21.5 26 24 26 26 a4 4 0 0 0 8 0 C34 24 33 21.5 30 17 Z" fill="#4fc3f7"/></svg>`;
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 
@@ -596,7 +597,7 @@
     const a = S.address || {};
 
     app.innerHTML = `
-      <div class="checkout-head"><a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.con</span></a><h1>Checkout (<a class="lnk" href="#/cart">${cartCount()} items</a>)</h1><span class="lock">🔒</span></div>
+      <div class="checkout-head"><a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.con</span>${LOGO_FROWN}</a><h1>Checkout (<a class="lnk" href="#/cart">${cartCount()} items</a>)</h1><span class="lock">🔒</span></div>
       <div class="checkout">
         <form id="coForm" novalidate>
           <div class="step"><h3><span>1</span> Shipping address</h3>
@@ -774,7 +775,7 @@
     const next = params.get("next") || "#/";
     if (S.user) { location.hash = next; return; }
     app.innerHTML = `<div class="auth">
-      <a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.con</span></a>
+      <a href="#/" class="logo dark"><span class="logo-text">scamazon</span><span class="logo-tld">.con</span>${LOGO_FROWN}</a>
       <form class="auth-card" id="authForm">
         <h1>${isNew ? "Create account" : "Sign in"}</h1>
         ${isNew ? `<label for="an">Your name</label><input id="an" required autocomplete="name" placeholder="First and last name">` : ""}
