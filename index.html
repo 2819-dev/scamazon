@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scamazon.com — Spend less*. Regret more.</title>
+  <meta name="description" content="Scamazon: the parody everything store. Off-brand products, Crime membership, and deals too good to be true." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦹</text></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="#/" aria-label="Scamazon home">
+      <span class="logo-text">scamazon</span><span class="logo-tld">.con</span>
+      <svg class="logo-smirk" viewBox="0 0 120 20" aria-hidden="true"><path d="M8 10 Q30 14 55 12 T104 3" fill="none" stroke="#ff4d3d" stroke-width="3.5" stroke-linecap="round"/><circle cx="110" cy="4" r="3" fill="#ff4d3d"/></svg>
+    </a>
+    <a class="deliver nav-item" href="#/" title="Delivery location">
+      <span class="small">Deliver to you</span>
+      <span class="bold">📍 Somewhere, USA</span>
+    </a>
+    <form class="search" id="searchForm" role="search">
+      <select id="searchCat" aria-label="Search category">
+        <option value="">All</option>
+      </select>
+      <input id="searchInput" type="search" placeholder="Search Scamazon" aria-label="Search Scamazon" />
+      <button type="submit" aria-label="Search">🔍</button>
+    </form>
+    <a class="nav-item hide-sm" href="#/account">
+      <span class="small">Hello, sign in</span>
+      <span class="bold">Account &amp; Lists ▾</span>
+    </a>
+    <a class="nav-item hide-sm" href="#/orders">
+      <span class="small">Returns</span>
+      <span class="bold">&amp; Orders</span>
+    </a>
+    <a class="nav-item cart-link" href="#/cart" aria-label="Cart">
+      <span class="cart-icon">🛒<span id="cartCount" class="cart-count">0</span></span>
+      <span class="bold hide-sm">Cart</span>
+    </a>
+  </header>
+  <nav class="subnav" id="subnav">
+    <a href="#/s">☰ All</a>
+    <a href="#/deals">Today's Deals</a>
+    <a href="#/crime" class="crime-link">Crime</a>
+  </nav>
+
+  <main id="app"></main>
+
+  <footer class="footer">
+    <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to top</button>
+    <div class="footer-cols">
+      <div><h4>Get to Know Us</h4><a href="#/about">About Scamazon</a><a href="#/about">Careers (unpaid)</a><a href="#/about">Scamazon Science (vibes)</a></div>
+      <div><h4>Make Money with Us</h4><a href="#/about">Sell on Scamazon</a><a href="#/about">Become an Affiliate Scammer</a><a href="#/about">Self-Publish with Us</a></div>
+      <div><h4>Scamazon Payment</h4><a href="#/about">Scamazon Visa-ish</a><a href="#/about">Shop with IOUs</a><a href="#/about">Reload Your Regret</a></div>
+      <div><h4>Let Us Help You</h4><a href="#/orders">Your Orders</a><a href="#/crime">Crime Membership</a><a href="#/about">Returns (lol)</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="logo-text small-logo">scamazon</span>
+      <p>© 2026 Scamazon.con — a parody. Not affiliated with any real company, real brand, or real sense of shame. No real purchases are made.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="products.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
